@@ -28,4 +28,4 @@ dist-ssr
 .dev.vars*
 pnpm-lock.yaml
 npm-lock.yaml
-wrangler.jsonc
+# allow wrangler.jsonc to be tracked for Cloudflare deployments
