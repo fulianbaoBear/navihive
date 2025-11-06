@@ -152,6 +152,8 @@ function App() {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
+  // 引用一次以避免未读值的类型检查警告
+  void isAuthRequired;
 
   // 配置状态
   const [configs, setConfigs] = useState<Record<string, string>>(DEFAULT_CONFIGS);
@@ -819,22 +821,7 @@ function App() {
     }
   };
 
-  // 渲染登录页面
-  const renderLoginForm = () => {
-    return (
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: 'background.default',
-        }}
-      >
-        <LoginForm onLogin={handleLogin} loading={loginLoading} error={loginError} />
-      </Box>
-    );
-  };
+  // 已不再强制显示登录页，允许未登录浏览，因此删除未使用的渲染函数
 
   // 如果正在检查认证状态，显示加载界面
   if (isAuthChecking) {
@@ -1216,13 +1203,34 @@ function App() {
                         sortMode={sortMode === SortMode.None ? 'None' : 'SiteSort'}
                         currentSortingGroupId={currentSortingGroupId}
                         canEdit={isAuthenticated}
-                        onUpdate={isAuthenticated ? handleSiteUpdate : undefined}
-                        onDelete={isAuthenticated ? handleSiteDelete : undefined}
-                        onSaveSiteOrder={isAuthenticated ? handleSaveSiteOrder : undefined}
-                        onStartSiteSort={isAuthenticated ? startSiteSort : undefined}
-                        onAddSite={isAuthenticated ? handleOpenAddSite : undefined}
-                        onUpdateGroup={isAuthenticated ? handleGroupUpdate : undefined}
-                        onDeleteGroup={isAuthenticated ? handleGroupDelete : undefined}
+                        onUpdate={(updatedSite) => {
+                          if (!isAuthenticated) return;
+                          void handleSiteUpdate(updatedSite);
+                        }}
+                        onDelete={(siteId) => {
+                          if (!isAuthenticated) return;
+                          void handleSiteDelete(siteId);
+                        }}
+                        onSaveSiteOrder={(groupId, sites) => {
+                          if (!isAuthenticated) return;
+                          void handleSaveSiteOrder(groupId, sites);
+                        }}
+                        onStartSiteSort={(groupId) => {
+                          if (!isAuthenticated) return;
+                          startSiteSort(groupId);
+                        }}
+                        onAddSite={(groupId) => {
+                          if (!isAuthenticated) return;
+                          handleOpenAddSite(groupId);
+                        }}
+                        onUpdateGroup={(updatedGroup) => {
+                          if (!isAuthenticated) return;
+                          void handleGroupUpdate(updatedGroup);
+                        }}
+                        onDeleteGroup={(groupId) => {
+                          if (!isAuthenticated) return;
+                          void handleGroupDelete(groupId);
+                        }}
                         configs={configs}
                       />
                     ))}
